@@ -99,42 +99,13 @@ impl<T: FtEventHandler + Send + Sync + 'static> Indexer for FtIndexer<T> {
                 }
             }
 
-            if let ReceiptEnumView::Action {
-                signer_id, actions, ..
-            } = &receipt.receipt.receipt.receipt
-            {
-                for action in actions {
-                    match action {
-                        ActionView::Transfer { deposit } => {
-                            let transfer = FtTransferEvent {
-                                old_owner_id: signer_id.clone(),
-                                new_owner_id: receipt.receipt.receipt.receiver_id.clone(),
-                                amount: *deposit,
-                                memo: None,
-                            };
-                            let predecessor_id = receipt.receipt.receipt.predecessor_id.clone();
-                            let transaction_id = transaction.transaction.transaction.hash;
-                            let receipt_id = receipt.receipt.receipt.receipt_id;
-                            let block_height = receipt.block_height;
-                            let block_timestamp_nanosec = receipt.block_timestamp_nanosec;
-                            self.0
-                                .handle_transfer(
-                                    transfer,
-                                    EventContext {
-                                        transaction_id,
-                                        receipt_id,
-                                        block_height,
-                                        block_timestamp_nanosec,
-                                        predecessor_id,
-                                        contract_id: "near".parse().unwrap(),
-                                    },
-                                )
-                                .await;
-                        }
-                        ActionView::FunctionCall { deposit, .. } => {
-                            if *deposit > 1 {
+            if let ReceiptEnumView::Action { actions, .. } = &receipt.receipt.receipt.receipt {
+                if receipt.receipt.receipt.predecessor_id != "system" {
+                    for action in actions {
+                        match action {
+                            ActionView::Transfer { deposit } => {
                                 let transfer = FtTransferEvent {
-                                    old_owner_id: signer_id.clone(),
+                                    old_owner_id: receipt.receipt.receipt.predecessor_id.clone(),
                                     new_owner_id: receipt.receipt.receipt.receiver_id.clone(),
                                     amount: *deposit,
                                     memo: None,
@@ -158,8 +129,41 @@ impl<T: FtEventHandler + Send + Sync + 'static> Indexer for FtIndexer<T> {
                                     )
                                     .await;
                             }
+                            ActionView::FunctionCall { deposit, .. } => {
+                                if *deposit > 1 {
+                                    let transfer = FtTransferEvent {
+                                        old_owner_id: receipt
+                                            .receipt
+                                            .receipt
+                                            .predecessor_id
+                                            .clone(),
+                                        new_owner_id: receipt.receipt.receipt.receiver_id.clone(),
+                                        amount: *deposit,
+                                        memo: None,
+                                    };
+                                    let predecessor_id =
+                                        receipt.receipt.receipt.predecessor_id.clone();
+                                    let transaction_id = transaction.transaction.transaction.hash;
+                                    let receipt_id = receipt.receipt.receipt.receipt_id;
+                                    let block_height = receipt.block_height;
+                                    let block_timestamp_nanosec = receipt.block_timestamp_nanosec;
+                                    self.0
+                                        .handle_transfer(
+                                            transfer,
+                                            EventContext {
+                                                transaction_id,
+                                                receipt_id,
+                                                block_height,
+                                                block_timestamp_nanosec,
+                                                predecessor_id,
+                                                contract_id: "near".parse().unwrap(),
+                                            },
+                                        )
+                                        .await;
+                                }
+                            }
+                            _ => {}
                         }
-                        _ => {}
                     }
                 }
             }
