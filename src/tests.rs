@@ -219,3 +219,109 @@ async fn detects_burns() {
         1
     );
 }
+
+#[tokio::test]
+async fn detects_native_near_transfers() {
+    struct TestHandler {
+        transfer_events: HashMap<AccountId, Vec<(FtTransferEvent, EventContext)>>,
+    }
+
+    #[async_trait]
+    impl FtEventHandler for TestHandler {
+        async fn handle_mint(&mut self, _mint: FtMintEvent, _context: EventContext) {}
+
+        async fn handle_transfer(&mut self, transfer: FtTransferEvent, context: EventContext) {
+            let entry = self
+                .transfer_events
+                .entry(context.predecessor_id.clone())
+                .or_insert_with(Vec::new);
+            entry.push((transfer, context));
+        }
+
+        async fn handle_burn(&mut self, _burn: FtBurnEvent, _context: EventContext) {}
+    }
+
+    let handler = TestHandler {
+        transfer_events: HashMap::new(),
+    };
+
+    let mut indexer = FtIndexer(handler);
+
+    run_indexer(
+        &mut indexer,
+        NeardataServerProvider::mainnet(),
+        IndexerOptions {
+            range: BlockIterator::iterator(131_214_339..=131_214_342),
+            preprocess_transactions: Some(PreprocessTransactionsSettings {
+                prefetch_blocks: 0,
+                postfetch_blocks: 0,
+            }),
+            ..Default::default()
+        },
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(
+        indexer
+            .0
+            .transfer_events
+            .get(&"slimedragon.near".parse::<AccountId>().unwrap())
+            .unwrap()
+            .len(),
+        1
+    );
+}
+
+#[tokio::test]
+async fn detects_native_near_function_transfers() {
+    struct TestHandler {
+        transfer_events: HashMap<AccountId, Vec<(FtTransferEvent, EventContext)>>,
+    }
+
+    #[async_trait]
+    impl FtEventHandler for TestHandler {
+        async fn handle_mint(&mut self, _mint: FtMintEvent, _context: EventContext) {}
+
+        async fn handle_transfer(&mut self, transfer: FtTransferEvent, context: EventContext) {
+            let entry = self
+                .transfer_events
+                .entry(context.predecessor_id.clone())
+                .or_insert_with(Vec::new);
+            entry.push((transfer, context));
+        }
+
+        async fn handle_burn(&mut self, _burn: FtBurnEvent, _context: EventContext) {}
+    }
+
+    let handler = TestHandler {
+        transfer_events: HashMap::new(),
+    };
+
+    let mut indexer = FtIndexer(handler);
+
+    run_indexer(
+        &mut indexer,
+        NeardataServerProvider::mainnet(),
+        IndexerOptions {
+            range: BlockIterator::iterator(131_103_427..=131_103_430),
+            preprocess_transactions: Some(PreprocessTransactionsSettings {
+                prefetch_blocks: 0,
+                postfetch_blocks: 0,
+            }),
+            ..Default::default()
+        },
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(
+        indexer
+            .0
+            .transfer_events
+            .get(&"fiery_drone.user.intear.near".parse::<AccountId>().unwrap())
+            .unwrap()
+            .len(),
+        1
+    );
+}
