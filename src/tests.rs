@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use async_trait::async_trait;
 use inindexer::{
-    near_indexer_primitives::types::AccountId,
+    near_indexer_primitives::types::{AccountId, BlockHeight},
     near_utils::{FtBurnEvent, FtMintEvent, FtTransferEvent},
-    neardata_server::NeardataServerProvider,
+    neardata::NeardataProvider,
     run_indexer, BlockIterator, IndexerOptions, PreprocessTransactionsSettings,
 };
 
@@ -28,6 +28,8 @@ async fn detects_mints() {
         async fn handle_transfer(&mut self, _transfer: FtTransferEvent, _context: EventContext) {}
 
         async fn handle_burn(&mut self, _burn: FtBurnEvent, _context: EventContext) {}
+
+        async fn flush_events(&mut self, _block_height: BlockHeight) {}
     }
 
     let handler = TestHandler {
@@ -38,7 +40,7 @@ async fn detects_mints() {
 
     run_indexer(
         &mut indexer,
-        NeardataServerProvider::mainnet(),
+        NeardataProvider::mainnet(),
         IndexerOptions {
             range: BlockIterator::iterator(129_190_044..=129_190_047),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
@@ -81,6 +83,8 @@ async fn detects_transfers() {
         }
 
         async fn handle_burn(&mut self, _burn: FtBurnEvent, _context: EventContext) {}
+
+        async fn flush_events(&mut self, _block_height: BlockHeight) {}
     }
 
     let handler = TestHandler {
@@ -91,7 +95,7 @@ async fn detects_transfers() {
 
     run_indexer(
         &mut indexer,
-        NeardataServerProvider::mainnet(),
+        NeardataProvider::mainnet(),
         IndexerOptions {
             range: BlockIterator::iterator(129_190_058..=129_190_068),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
@@ -134,6 +138,8 @@ async fn detects_tkn_transfers() {
         }
 
         async fn handle_burn(&mut self, _burn: FtBurnEvent, _context: EventContext) {}
+
+        async fn flush_events(&mut self, _block_height: BlockHeight) {}
     }
 
     let handler = TestHandler {
@@ -144,7 +150,7 @@ async fn detects_tkn_transfers() {
 
     run_indexer(
         &mut indexer,
-        NeardataServerProvider::mainnet(),
+        NeardataProvider::mainnet(),
         IndexerOptions {
             range: BlockIterator::iterator(129_163_629..=129_163_632),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
@@ -186,6 +192,8 @@ async fn detects_burns() {
                 .or_insert_with(Vec::new)
                 .push((burn, context));
         }
+
+        async fn flush_events(&mut self, _block_height: BlockHeight) {}
     }
 
     let handler = TestHandler {
@@ -196,7 +204,7 @@ async fn detects_burns() {
 
     run_indexer(
         &mut indexer,
-        NeardataServerProvider::mainnet(),
+        NeardataProvider::mainnet(),
         IndexerOptions {
             range: BlockIterator::iterator(129_186_699..=129_186_710),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
@@ -239,6 +247,8 @@ async fn detects_native_near_transfers() {
         }
 
         async fn handle_burn(&mut self, _burn: FtBurnEvent, _context: EventContext) {}
+
+        async fn flush_events(&mut self, _block_height: BlockHeight) {}
     }
 
     let handler = TestHandler {
@@ -249,7 +259,7 @@ async fn detects_native_near_transfers() {
 
     run_indexer(
         &mut indexer,
-        NeardataServerProvider::mainnet(),
+        NeardataProvider::mainnet(),
         IndexerOptions {
             range: BlockIterator::iterator(131_214_339..=131_214_342),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
@@ -292,6 +302,8 @@ async fn detects_native_near_function_transfers() {
         }
 
         async fn handle_burn(&mut self, _burn: FtBurnEvent, _context: EventContext) {}
+
+        async fn flush_events(&mut self, _block_height: BlockHeight) {}
     }
 
     let handler = TestHandler {
@@ -302,7 +314,7 @@ async fn detects_native_near_function_transfers() {
 
     run_indexer(
         &mut indexer,
-        NeardataServerProvider::mainnet(),
+        NeardataProvider::mainnet(),
         IndexerOptions {
             range: BlockIterator::iterator(131_103_427..=131_103_430),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
@@ -345,6 +357,8 @@ async fn does_not_detect_fee_refunds() {
         }
 
         async fn handle_burn(&mut self, _burn: FtBurnEvent, _context: EventContext) {}
+
+        async fn flush_events(&mut self, _block_height: BlockHeight) {}
     }
 
     let handler = TestHandler {
@@ -355,7 +369,7 @@ async fn does_not_detect_fee_refunds() {
 
     run_indexer(
         &mut indexer,
-        NeardataServerProvider::mainnet(),
+        NeardataProvider::mainnet(),
         IndexerOptions {
             range: BlockIterator::iterator(131_103_427..=131_103_430),
             preprocess_transactions: Some(PreprocessTransactionsSettings {

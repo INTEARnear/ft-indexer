@@ -15,6 +15,9 @@ pub trait FtEventHandler: Send + Sync {
     async fn handle_mint(&mut self, mint: FtMintEvent, context: EventContext);
     async fn handle_transfer(&mut self, transfer: FtTransferEvent, context: EventContext);
     async fn handle_burn(&mut self, burn: FtBurnEvent, context: EventContext);
+
+    /// Called after each block
+    async fn flush_events(&mut self, block_height: BlockHeight);
 }
 
 pub struct FtIndexer<T: FtEventHandler + Send + Sync + 'static>(pub T);
@@ -168,6 +171,11 @@ impl<T: FtEventHandler + Send + Sync + 'static> Indexer for FtIndexer<T> {
                 }
             }
         }
+        Ok(())
+    }
+
+    async fn process_block_end(&mut self, block: &StreamerMessage) -> Result<(), Self::Error> {
+        self.0.flush_events(block.block.header.height).await;
         Ok(())
     }
 }
