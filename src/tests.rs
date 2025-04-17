@@ -2,10 +2,7 @@ use std::collections::HashMap;
 
 use async_trait::async_trait;
 use inindexer::{
-    near_indexer_primitives::types::{AccountId, BlockHeight},
-    near_utils::{FtBurnEvent, FtMintEvent, FtTransferEvent},
-    neardata::NeardataProvider,
-    run_indexer, BlockIterator, IndexerOptions, PreprocessTransactionsSettings,
+    near_indexer_primitives::types::{AccountId, BlockHeight}, near_utils::{FtBurnEvent, FtMintEvent, FtTransferEvent}, neardata::NeardataProvider, run_indexer, BlockRange, IndexerOptions, PreprocessTransactionsSettings
 };
 
 use ft_indexer::{EventContext, FtEventHandler, FtIndexer};
@@ -42,12 +39,14 @@ async fn detects_mints() {
         &mut indexer,
         NeardataProvider::mainnet(),
         IndexerOptions {
-            range: BlockIterator::iterator(129_190_044..=129_190_047),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
                 prefetch_blocks: 0,
                 postfetch_blocks: 0,
             }),
-            ..Default::default()
+            ..IndexerOptions::default_with_range(BlockRange::Range {
+                start_inclusive: 129_190_044,
+                end_exclusive: Some(129_190_047),
+            })
         },
     )
     .await
@@ -97,12 +96,14 @@ async fn detects_transfers() {
         &mut indexer,
         NeardataProvider::mainnet(),
         IndexerOptions {
-            range: BlockIterator::iterator(129_190_058..=129_190_068),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
                 prefetch_blocks: 0,
                 postfetch_blocks: 0,
             }),
-            ..Default::default()
+            ..IndexerOptions::default_with_range(BlockRange::Range {
+                start_inclusive: 129_190_058,
+                end_exclusive: Some(129_190_068),
+            })
         },
     )
     .await
@@ -152,12 +153,14 @@ async fn detects_tkn_transfers() {
         &mut indexer,
         NeardataProvider::mainnet(),
         IndexerOptions {
-            range: BlockIterator::iterator(129_163_629..=129_163_632),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
                 prefetch_blocks: 0,
                 postfetch_blocks: 0,
             }),
-            ..Default::default()
+            ..IndexerOptions::default_with_range(BlockRange::Range {
+                start_inclusive: 129_163_629,
+                end_exclusive: Some(129_163_632),
+            })
         },
     )
     .await
@@ -206,12 +209,14 @@ async fn detects_burns() {
         &mut indexer,
         NeardataProvider::mainnet(),
         IndexerOptions {
-            range: BlockIterator::iterator(129_186_699..=129_186_710),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
                 prefetch_blocks: 0,
                 postfetch_blocks: 0,
             }),
-            ..Default::default()
+            ..IndexerOptions::default_with_range(BlockRange::Range {
+                start_inclusive: 129_186_699,
+                end_exclusive: Some(129_186_710),
+            })
         },
     )
     .await
@@ -261,12 +266,14 @@ async fn detects_native_near_transfers() {
         &mut indexer,
         NeardataProvider::mainnet(),
         IndexerOptions {
-            range: BlockIterator::iterator(131_214_339..=131_214_342),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
                 prefetch_blocks: 0,
                 postfetch_blocks: 0,
             }),
-            ..Default::default()
+            ..IndexerOptions::default_with_range(BlockRange::Range {
+                start_inclusive: 131_214_339,
+                end_exclusive: Some(131_214_342),
+            })
         },
     )
     .await
@@ -316,12 +323,14 @@ async fn detects_native_near_function_transfers() {
         &mut indexer,
         NeardataProvider::mainnet(),
         IndexerOptions {
-            range: BlockIterator::iterator(131_103_427..=131_103_430),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
                 prefetch_blocks: 0,
                 postfetch_blocks: 0,
             }),
-            ..Default::default()
+            ..IndexerOptions::default_with_range(BlockRange::Range {
+                start_inclusive: 131_103_427,
+                end_exclusive: Some(131_103_430),
+            })
         },
     )
     .await
@@ -371,12 +380,14 @@ async fn does_not_detect_fee_refunds() {
         &mut indexer,
         NeardataProvider::mainnet(),
         IndexerOptions {
-            range: BlockIterator::iterator(131_103_427..=131_103_430),
             preprocess_transactions: Some(PreprocessTransactionsSettings {
                 prefetch_blocks: 0,
                 postfetch_blocks: 0,
             }),
-            ..Default::default()
+            ..IndexerOptions::default_with_range(BlockRange::Range {
+                start_inclusive: 131_103_427,
+                end_exclusive: Some(131_103_430),
+            })
         },
     )
     .await
