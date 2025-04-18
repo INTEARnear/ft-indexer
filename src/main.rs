@@ -4,7 +4,7 @@ mod tests;
 use ft_indexer::redis_handler;
 use inindexer::neardata::NeardataProvider;
 use inindexer::{
-    run_indexer, AutoContinue, BlockRange, IndexerOptions, PreprocessTransactionsSettings
+    run_indexer, AutoContinue, BlockRange, IndexerOptions, PreprocessTransactionsSettings,
 };
 use redis::aio::ConnectionManager;
 use redis_handler::PushToRedisStream;
@@ -44,12 +44,14 @@ async fn main() {
                         .replace(['_', ',', ' ', '.'], "")
                         .parse()
                         .expect(msg),
-                    end_exclusive: Some(std::env::args()
-                        .nth(2)
-                        .expect(msg)
-                        .replace(['_', ',', ' ', '.'], "")
-                        .parse()
-                        .expect(msg)),
+                    end_exclusive: Some(
+                        std::env::args()
+                            .nth(2)
+                            .expect(msg)
+                            .replace(['_', ',', ' ', '.'], "")
+                            .parse()
+                            .expect(msg),
+                    ),
                 }
             } else {
                 BlockRange::AutoContinue(AutoContinue::default())

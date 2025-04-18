@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use async_trait::async_trait;
 use inindexer::{
-    near_indexer_primitives::types::{AccountId, BlockHeight}, near_utils::{FtBurnEvent, FtMintEvent, FtTransferEvent}, neardata::NeardataProvider, run_indexer, BlockRange, IndexerOptions, PreprocessTransactionsSettings
+    near_indexer_primitives::types::{AccountId, BlockHeight},
+    near_utils::{FtBurnEvent, FtMintEvent, FtTransferEvent},
+    neardata::NeardataProvider,
+    run_indexer, BlockRange, IndexerOptions, PreprocessTransactionsSettings,
 };
 
 use ft_indexer::{EventContext, FtEventHandler, FtIndexer};
