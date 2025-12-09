@@ -110,7 +110,7 @@ impl<T: FtEventHandler + Send + Sync + 'static> Indexer for FtIndexer<T> {
                                 let transfer = FtTransferEvent {
                                     old_owner_id: receipt.receipt.receipt.predecessor_id.clone(),
                                     new_owner_id: receipt.receipt.receipt.receiver_id.clone(),
-                                    amount: *deposit,
+                                    amount: deposit.as_yoctonear(),
                                     memo: None,
                                 };
                                 let predecessor_id = receipt.receipt.receipt.predecessor_id.clone();
@@ -133,7 +133,7 @@ impl<T: FtEventHandler + Send + Sync + 'static> Indexer for FtIndexer<T> {
                                     .await;
                             }
                             ActionView::FunctionCall { deposit, .. } => {
-                                if *deposit > 1 {
+                                if deposit.as_yoctonear() > 1 {
                                     let transfer = FtTransferEvent {
                                         old_owner_id: receipt
                                             .receipt
@@ -141,7 +141,7 @@ impl<T: FtEventHandler + Send + Sync + 'static> Indexer for FtIndexer<T> {
                                             .predecessor_id
                                             .clone(),
                                         new_owner_id: receipt.receipt.receipt.receiver_id.clone(),
-                                        amount: *deposit,
+                                        amount: deposit.as_yoctonear(),
                                         memo: None,
                                     };
                                     let predecessor_id =
